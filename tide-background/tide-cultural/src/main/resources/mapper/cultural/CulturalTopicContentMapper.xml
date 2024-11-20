@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tide.cultural.mapper.CulturalTopicContentMapper">
+    
+    <resultMap type="CulturalTopicContent" id="CulturalTopicContentResult">
+        <result property="id"    column="id"    />
+        <result property="culturalTopicId"    column="cultural_topic_id"    />
+        <result property="tagId1"    column="tag_id_1"    />
+        <result property="tagId2"    column="tag_id_2"    />
+        <result property="tagId3"    column="tag_id_3"    />
+        <result property="coverImg"    column="cover_img"    />
+        <result property="content"    column="content"    />
+        <result property="isTop"    column="is_top"    />
+        <result property="isRecommend"    column="is_recommend"    />
+        <result property="status"    column="status"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectCulturalTopicContentVo">
+        select id, cultural_topic_id, tag_id_1, tag_id_2, tag_id_3, cover_img, content, is_top, is_recommend, status, del_flag, create_by, create_time, update_by, update_time from tide_cultural_topic_content
+    </sql>
+
+    <select id="selectCulturalTopicContentList" parameterType="CulturalTopicContent" resultMap="CulturalTopicContentResult">
+        <include refid="selectCulturalTopicContentVo"/>
+        <where>  
+            <if test="culturalTopicId != null  and culturalTopicId != ''"> and cultural_topic_id = #{culturalTopicId}</if>
+            <if test="tagId1 != null  and tagId1 != ''"> and tag_id_1 = #{tagId1}</if>
+            <if test="tagId2 != null  and tagId2 != ''"> and tag_id_2 = #{tagId2}</if>
+            <if test="tagId3 != null  and tagId3 != ''"> and tag_id_3 = #{tagId3}</if>
+            <if test="coverImg != null  and coverImg != ''"> and cover_img = #{coverImg}</if>
+            <if test="content != null  and content != ''"> and content = #{content}</if>
+            <if test="isTop != null "> and is_top = #{isTop}</if>
+            <if test="isRecommend != null "> and is_recommend = #{isRecommend}</if>
+            <if test="status != null "> and status = #{status}</if>
+        </where>
+    </select>
+    
+    <select id="selectCulturalTopicContentById" parameterType="String" resultMap="CulturalTopicContentResult">
+        <include refid="selectCulturalTopicContentVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertCulturalTopicContent" parameterType="CulturalTopicContent">
+        insert into tide_cultural_topic_content
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="culturalTopicId != null">cultural_topic_id,</if>
+            <if test="tagId1 != null">tag_id_1,</if>
+            <if test="tagId2 != null">tag_id_2,</if>
+            <if test="tagId3 != null">tag_id_3,</if>
+            <if test="coverImg != null">cover_img,</if>
+            <if test="content != null">content,</if>
+            <if test="isTop != null">is_top,</if>
+            <if test="isRecommend != null">is_recommend,</if>
+            <if test="status != null">status,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="culturalTopicId != null">#{culturalTopicId},</if>
+            <if test="tagId1 != null">#{tagId1},</if>
+            <if test="tagId2 != null">#{tagId2},</if>
+            <if test="tagId3 != null">#{tagId3},</if>
+            <if test="coverImg != null">#{coverImg},</if>
+            <if test="content != null">#{content},</if>
+            <if test="isTop != null">#{isTop},</if>
+            <if test="isRecommend != null">#{isRecommend},</if>
+            <if test="status != null">#{status},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCulturalTopicContent" parameterType="CulturalTopicContent">
+        update tide_cultural_topic_content
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="culturalTopicId != null">cultural_topic_id = #{culturalTopicId},</if>
+            <if test="tagId1 != null">tag_id_1 = #{tagId1},</if>
+            <if test="tagId2 != null">tag_id_2 = #{tagId2},</if>
+            <if test="tagId3 != null">tag_id_3 = #{tagId3},</if>
+            <if test="coverImg != null">cover_img = #{coverImg},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="isTop != null">is_top = #{isTop},</if>
+            <if test="isRecommend != null">is_recommend = #{isRecommend},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteCulturalTopicContentById" parameterType="String">
+        delete from tide_cultural_topic_content where id = #{id}
+    </delete>
+
+    <delete id="deleteCulturalTopicContentByIds" parameterType="String">
+        delete from tide_cultural_topic_content where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

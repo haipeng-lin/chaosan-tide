@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tide.cultural.mapper.CulturalTagMapper">
+    
+    <resultMap type="CulturalTag" id="CulturalTagResult">
+        <result property="id"    column="id"    />
+        <result property="tagName"    column="tag_name"    />
+        <result property="orderNum"    column="order_num"    />
+        <result property="status"    column="status"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectCulturalTagVo">
+        select id, tag_name, order_num, status, del_flag, create_by, create_time, update_by, update_time from tide_cultural_tag
+    </sql>
+
+    <select id="selectCulturalTagList" parameterType="CulturalTag" resultMap="CulturalTagResult">
+        <include refid="selectCulturalTagVo"/>
+        <where>  
+            <if test="tagName != null  and tagName != ''"> and tag_name like concat('%', #{tagName}, '%')</if>
+            <if test="orderNum != null "> and order_num = #{orderNum}</if>
+            <if test="status != null "> and status = #{status}</if>
+        </where>
+    </select>
+    
+    <select id="selectCulturalTagById" parameterType="Long" resultMap="CulturalTagResult">
+        <include refid="selectCulturalTagVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertCulturalTag" parameterType="CulturalTag" useGeneratedKeys="true" keyProperty="id">
+        insert into tide_cultural_tag
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="tagName != null">tag_name,</if>
+            <if test="orderNum != null">order_num,</if>
+            <if test="status != null">status,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="tagName != null">#{tagName},</if>
+            <if test="orderNum != null">#{orderNum},</if>
+            <if test="status != null">#{status},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCulturalTag" parameterType="CulturalTag">
+        update tide_cultural_tag
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="tagName != null">tag_name = #{tagName},</if>
+            <if test="orderNum != null">order_num = #{orderNum},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteCulturalTagById" parameterType="Long">
+        delete from tide_cultural_tag where id = #{id}
+    </delete>
+
+    <delete id="deleteCulturalTagByIds" parameterType="String">
+        delete from tide_cultural_tag where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

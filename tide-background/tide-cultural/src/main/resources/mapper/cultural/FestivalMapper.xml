@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tide.cultural.mapper.FestivalMapper">
+    
+    <resultMap type="Festival" id="FestivalResult">
+        <result property="id"    column="id"    />
+        <result property="festivalCategoryId"    column="festival_category_id"    />
+        <result property="name"    column="name"    />
+        <result property="description"    column="description"    />
+        <result property="time"    column="time"    />
+        <result property="location"    column="location"    />
+        <result property="coverImg"    column="cover_img"    />
+        <result property="organizer"    column="organizer"    />
+        <result property="isTop"    column="is_top"    />
+        <result property="isRecommend"    column="is_recommend"    />
+        <result property="approvalStat"    column="approval_stat"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectFestivalVo">
+        select id, festival_category_id, name, description, time, location, cover_img, organizer, is_top, is_recommend, approval_stat, del_flag, create_by, create_time, update_by, update_time from tide_festival
+    </sql>
+
+    <select id="selectFestivalList" parameterType="Festival" resultMap="FestivalResult">
+        <include refid="selectFestivalVo"/>
+        <where>  
+            <if test="festivalCategoryId != null  and festivalCategoryId != ''"> and festival_category_id = #{festivalCategoryId}</if>
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="description != null  and description != ''"> and description = #{description}</if>
+            <if test="time != null  and time != ''"> and time = #{time}</if>
+            <if test="location != null  and location != ''"> and location = #{location}</if>
+            <if test="coverImg != null  and coverImg != ''"> and cover_img = #{coverImg}</if>
+            <if test="organizer != null  and organizer != ''"> and organizer = #{organizer}</if>
+            <if test="isTop != null "> and is_top = #{isTop}</if>
+            <if test="isRecommend != null "> and is_recommend = #{isRecommend}</if>
+            <if test="approvalStat != null "> and approval_stat = #{approvalStat}</if>
+        </where>
+    </select>
+    
+    <select id="selectFestivalById" parameterType="String" resultMap="FestivalResult">
+        <include refid="selectFestivalVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertFestival" parameterType="Festival">
+        insert into tide_festival
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="festivalCategoryId != null">festival_category_id,</if>
+            <if test="name != null">name,</if>
+            <if test="description != null">description,</if>
+            <if test="time != null">time,</if>
+            <if test="location != null">location,</if>
+            <if test="coverImg != null">cover_img,</if>
+            <if test="organizer != null">organizer,</if>
+            <if test="isTop != null">is_top,</if>
+            <if test="isRecommend != null">is_recommend,</if>
+            <if test="approvalStat != null">approval_stat,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="festivalCategoryId != null">#{festivalCategoryId},</if>
+            <if test="name != null">#{name},</if>
+            <if test="description != null">#{description},</if>
+            <if test="time != null">#{time},</if>
+            <if test="location != null">#{location},</if>
+            <if test="coverImg != null">#{coverImg},</if>
+            <if test="organizer != null">#{organizer},</if>
+            <if test="isTop != null">#{isTop},</if>
+            <if test="isRecommend != null">#{isRecommend},</if>
+            <if test="approvalStat != null">#{approvalStat},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateFestival" parameterType="Festival">
+        update tide_festival
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="festivalCategoryId != null">festival_category_id = #{festivalCategoryId},</if>
+            <if test="name != null">name = #{name},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="time != null">time = #{time},</if>
+            <if test="location != null">location = #{location},</if>
+            <if test="coverImg != null">cover_img = #{coverImg},</if>
+            <if test="organizer != null">organizer = #{organizer},</if>
+            <if test="isTop != null">is_top = #{isTop},</if>
+            <if test="isRecommend != null">is_recommend = #{isRecommend},</if>
+            <if test="approvalStat != null">approval_stat = #{approvalStat},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteFestivalById" parameterType="String">
+        delete from tide_festival where id = #{id}
+    </delete>
+
+    <delete id="deleteFestivalByIds" parameterType="String">
+        delete from tide_festival where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
