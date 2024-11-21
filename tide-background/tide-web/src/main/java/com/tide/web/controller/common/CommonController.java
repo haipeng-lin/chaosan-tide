@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import com.tide.common.service.FileService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +37,9 @@ public class CommonController
     @Autowired
     private ServerConfig serverConfig;
 
+    @Autowired
+    private FileService fileService;
+
     private static final String FILE_DELIMETER = ",";
 
     /**
@@ -44,14 +49,14 @@ public class CommonController
      * @param delete 是否删除
      */
     @GetMapping("/download")
-    public void fileDownload(String fileName, Boolean delete, HttpServletResponse response, HttpServletRequest request)
-    {
-        try
-        {
-            if (!FileUtils.checkAllowDownload(fileName))
-            {
+    public void fileDownload(String fileName, Boolean delete, HttpServletResponse response, HttpServletRequest request) {
+
+        try {
+            // 1、检查文件是否合法
+            if (!FileUtils.checkAllowDownload(fileName)) {
                 throw new Exception(StringUtils.format("文件名称({})非法，不允许下载。 ", fileName));
             }
+            // 2、获取文件路径
             String realFileName = System.currentTimeMillis() + fileName.substring(fileName.indexOf("_") + 1);
             String filePath = RuoYiConfig.getDownloadPath() + fileName;
 
@@ -63,8 +68,7 @@ public class CommonController
                 FileUtils.deleteFile(filePath);
             }
         }
-        catch (Exception e)
-        {
+        catch (Exception e) {
             log.error("下载文件失败", e);
         }
     }
@@ -73,20 +77,24 @@ public class CommonController
      * 通用上传请求（单个）
      */
     @PostMapping("/upload")
-    public AjaxResult uploadFile(MultipartFile file) throws Exception
-    {
-        try
-        {
-            // 上传文件路径
-            String filePath = RuoYiConfig.getUploadPath();
-            // 上传并返回新文件名称
-            String fileName = FileUploadUtils.upload(filePath, file);
-            String url = serverConfig.getUrl() + fileName;
+    public AjaxResult uploadFile(MultipartFile multipartFile) throws Exception {
+        try {
+            // 1、上传文件，返回文件路径
+            String filePath = fileService.upload(multipartFile.getInputStream(), multipartFile.getContentType());
+            log.info("文件上传成功，文件路径为{}", filePath);
+
+//            // 1、上传文件路径
+//            String filePath = RuoYiConfig.getUploadPath();
+//            // 上传并返回新文件名称
+//            String fileName = FileUploadUtils.upload(filePath, multipartFile);
+//            String url = serverConfig.getUrl() + fileName;
+
+
             AjaxResult ajax = AjaxResult.success();
-            ajax.put("url", url);
-            ajax.put("fileName", fileName);
-            ajax.put("newFileName", FileUtils.getName(fileName));
-            ajax.put("originalFilename", file.getOriginalFilename());
+            ajax.put("url", filePath);
+//            ajax.put("fileName", fileName);
+//            ajax.put("newFileName", FileUtils.getName(fileName));
+            ajax.put("originalFilename", multipartFile.getOriginalFilename());
             return ajax;
         }
         catch (Exception e)
@@ -101,8 +109,7 @@ public class CommonController
     @PostMapping("/uploads")
     public AjaxResult uploadFiles(List<MultipartFile> files) throws Exception
     {
-        try
-        {
+        try{
             // 上传文件路径
             String filePath = RuoYiConfig.getUploadPath();
             List<String> urls = new ArrayList<String>();
