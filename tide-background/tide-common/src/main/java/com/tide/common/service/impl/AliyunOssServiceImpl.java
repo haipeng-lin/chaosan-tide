@@ -1,12 +1,14 @@
 package com.tide.common.service.impl;
 
 import com.aliyun.oss.OSS;
+import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.OSSException;
 import com.aliyun.oss.model.PutObjectRequest;
 import com.aliyun.oss.model.PutObjectResult;
 import com.tide.common.config.OssProperties;
 import com.tide.common.service.FileService;
 import com.tide.common.utils.Md5Util;
+import lombok.Cleanup;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -15,8 +17,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StreamUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -28,7 +32,6 @@ import java.util.Date;
  * @Date 2024/11/21 19:18
  * @Description Oss上传文件实现
  */
-
 @Slf4j
 @Component
 @ConditionalOnExpression(value = "#{'aliyun'.equals(environment.getProperty('file.type'))}")
@@ -39,61 +42,46 @@ public class AliyunOssServiceImpl implements FileService {
     @Autowired
     private OssProperties ossProperties;
 
-    @Autowired
-    private OSS ossClient;
-
     /**
      * 上传文件
-     * @param input 文件输入流
-     * @param fileType 文件类型
+     * @param multipartFile 文件
      * @return 文件路径
+     *
+     * 注意：一个InputStream只能使用一次，多次使用同一个InputStream，会出现上传到OSS的图片为0kb
+     * 解决方案：将InputStream转成字节数组，根据字节数组生成md5值，最后将字节数组转成InputStream
      */
     @Override
-    public String upload(InputStream input, String fileType) {
-        try {
-            // 转换成字节
-            byte[] bytes = StreamUtils.copyToByteArray(input);
-            return upload(bytes, fileType);
-        } catch (OSSException oe) {
-            log.error("Oss上传文件失败，msg:{}, code:{}, reqId:{}, host:{}", oe.getErrorMessage(), oe.getErrorCode(), oe.getRequestId(), oe.getHostId());
-            return "";
-        } catch (Exception ce) {
-            log.error("Oss上传文件失败，msg:{}, code:{}, reqId:{}, host:{}", ce.getMessage());
-            return "";
-        }
-    }
+    public String upload(MultipartFile multipartFile) {
 
-    /**
-     * 上传文件
-     * @param bytes 文件字节数组
-     * @param fileType 文件类型
-     * @return 文件路径
-     */
-    public String upload(byte[] bytes, String fileType) {
+        InputStream inputStream =null;
+
         try {
-            // 1、计算md5作为文件名
-            log.info("文件md5值：{}",Md5Util.encode(bytes));
+            // 1、创建OSS对象
+            OSS ossClient = new OSSClientBuilder().build(ossProperties.getEndpoint(), ossProperties.getAk(), ossProperties.getSk());
+
+            // 2、计算md5作为文件名
+            inputStream = multipartFile.getInputStream();
+            byte[] bytes = StreamUtils.copyToByteArray(inputStream);
+
             String fileName = Md5Util.encode(bytes);
-            ByteArrayInputStream input = new ByteArrayInputStream(bytes);
 
-            // 2、根据日期构建文件的 OSS 存储路径
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
+            // 3、根据日期构建文件的 OSS 存储路径
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM");
             String datePath = sdf.format(new Date());
-            String ossPath = datePath + "/" + fileName + getFileType(input, fileType);
 
-            // 3、创建PutObjectRequest对象。
-            PutObjectRequest putObjectRequest = new PutObjectRequest(ossProperties.getBucket(), fileName, input);
-            // 设置该属性可以返回response。如果不设置，则返回的response为空。
-            putObjectRequest.setProcess("true");
+            // 获取后缀
+            String originalFilename = multipartFile.getOriginalFilename();
+            String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            log.info("文件后缀为：{}",extension);
+            String ossPath = datePath + "/" + fileName + extension;
 
             // 4、上传文件
-            PutObjectResult putObjectResult = ossClient.putObject(putObjectRequest);
-            if (SUCCESS_CODE == putObjectResult.getResponse().getStatusCode()) {
+            PutObjectResult result = ossClient.putObject(ossProperties.getBucket(),ossPath,new ByteArrayInputStream(bytes));
+            if(result!=null){
                 // 返回文件路径
-                return ossProperties.getHost() + fileName;
+                return ossProperties.getHost() + ossPath;
             } else {
-                log.error("upload to oss error! response:{}", putObjectResult.getResponse().getStatusCode());
-                // Guava 不允许回传 null
+                log.error("upload to oss error! response:{}", result.getResponse().getStatusCode());
                 return "";
             }
         } catch (OSSException oe) {
@@ -102,6 +90,15 @@ public class AliyunOssServiceImpl implements FileService {
         } catch (Exception ce) {
             log.error("Oss上传文件失败，msg:{}, code:{}, reqId:{}, host:{}", ce.getMessage());
             return  "";
+        }finally {
+            if (inputStream != null) {
+				try {
+					inputStream.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
         }
     }
+
 }

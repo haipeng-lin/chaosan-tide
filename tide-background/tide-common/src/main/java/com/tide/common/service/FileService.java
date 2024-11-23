@@ -2,6 +2,7 @@ package com.tide.common.service;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -22,26 +23,10 @@ public interface FileService {
     /**
      * 文件上传
      *
-     * @param input 文件输入流
-     * @param fileType 文件类型
-     * @return 文件路径
+     * @param multipartFile 文件
+=    * @return 文件路径
      */
-    String upload(InputStream input, String fileType);
+    String upload(MultipartFile multipartFile) throws IOException;
 
 
-    /**
-     * 获取文件类型
-     *
-     * @param input
-     * @param fileType
-     * @return
-     */
-    default String getFileType(ByteArrayInputStream input, String fileType) {
-        if (StringUtils.isNotBlank(fileType)) {
-            // 文件类型不为空
-            return fileType;
-        }
-        // TODO 获取文件类型
-        return null;
-    }
 }

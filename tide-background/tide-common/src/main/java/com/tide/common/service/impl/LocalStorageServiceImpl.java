@@ -4,6 +4,7 @@ import com.tide.common.service.FileService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 
@@ -19,8 +20,9 @@ import java.io.InputStream;
 @ConditionalOnExpression(value = "#{'local'.equals(environment.getProperty('file.type'))}")
 public class LocalStorageServiceImpl implements FileService {
 
+
     @Override
-    public String upload(InputStream input, String fileType) {
+    public String upload(MultipartFile multipartFile) {
         return "";
     }
 }

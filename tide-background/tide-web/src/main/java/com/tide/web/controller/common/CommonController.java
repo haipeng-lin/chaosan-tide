@@ -77,10 +77,10 @@ public class CommonController
      * 通用上传请求（单个）
      */
     @PostMapping("/upload")
-    public AjaxResult uploadFile(MultipartFile multipartFile) throws Exception {
+    public AjaxResult uploadFile(MultipartFile file) throws Exception {
         try {
             // 1、上传文件，返回文件路径
-            String filePath = fileService.upload(multipartFile.getInputStream(), multipartFile.getContentType());
+            String filePath = fileService.upload(file);
             log.info("文件上传成功，文件路径为{}", filePath);
 
 //            // 1、上传文件路径
@@ -92,9 +92,9 @@ public class CommonController
 
             AjaxResult ajax = AjaxResult.success();
             ajax.put("url", filePath);
-//            ajax.put("fileName", fileName);
-//            ajax.put("newFileName", FileUtils.getName(fileName));
-            ajax.put("originalFilename", multipartFile.getOriginalFilename());
+            ajax.put("fileName", "11");
+            ajax.put("newFileName", "22");
+            ajax.put("originalFilename", file.getOriginalFilename());
             return ajax;
         }
         catch (Exception e)
